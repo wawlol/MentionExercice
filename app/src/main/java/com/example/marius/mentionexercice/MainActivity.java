@@ -1,12 +1,18 @@
 package com.example.marius.mentionexercice;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -34,13 +40,30 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         populateMentionsList();
         changeOnClick();
+
     }
+
+
+
     private void populateMentionsList() {
+        CheckInternet checkInternet = new CheckInternet(this);
+        if(checkInternet.isConnected()){
+
         HttpGetMention httpGetMention = new HttpGetMention();
         httpGetMention.execute();
+        }
+          else {
 
+            Intent intent = new Intent(this, ReloadButton2.class);
+            finish();
+            startActivity(intent);
+
+
+
+        }
     }
     private void changeOnClick() {
 
@@ -52,6 +75,7 @@ public class MainActivity extends Activity {
 
                 class ProgressTask extends AsyncTask<Void, Void, Boolean> {
                     private int x;
+
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
@@ -63,6 +87,7 @@ public class MainActivity extends Activity {
                         if (mention.isWait()) mention.setWait(false);
                         mAdapter.notifyDataSetChanged();
                     }
+
                     @Override
                     protected Boolean doInBackground(Void... arg0) {
 
@@ -74,6 +99,7 @@ public class MainActivity extends Activity {
                             return false;
                         }
                     }
+
                     @Override
                     protected void onPostExecute(Boolean result) {
                         super.onPostExecute(result);
@@ -94,7 +120,7 @@ public class MainActivity extends Activity {
         private static final String ACCEPT_HEADER = "application/json";
         private static final String ACCEPT_LANGUAGE_HEADER = "fr";
         private static final String TOKEN_HEADER = "Bearer ZTlhODAzMmMxZGU4NGI4NDA2OTA0MzFmOTIwZTZkY2ViMTdiYjg4YmQwNWNmNTEyMjc3NzBlOGZjMzJjNTZlOQ";
-        private static final String URL = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions";
+        private static final String URL = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions?limit=50";
 
         AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
 
@@ -105,6 +131,7 @@ public class MainActivity extends Activity {
             request.addHeader("Accept", ACCEPT_HEADER);
             request.addHeader("Accept-Language", ACCEPT_LANGUAGE_HEADER);
             request.addHeader("Authorization", TOKEN_HEADER );
+
 
             JSONResponseHandler responseHandler = new JSONResponseHandler();
 
@@ -142,9 +169,12 @@ public class MainActivity extends Activity {
         private static final String SOURCE_TAG = "source_name";
         private static final String MENTIONS_TAG = "mentions";
 
+
+
+
         @Override
         public ArrayList<Mention> handleResponse(HttpResponse response)
-                throws ClientProtocolException, IOException {
+                throws IOException {
             ArrayList<Mention> result = new ArrayList<Mention>();
             String JSONResponse = new BasicResponseHandler()
                     .handleResponse(response);
@@ -161,7 +191,7 @@ public class MainActivity extends Activity {
 
                     JSONObject mention = (JSONObject) mentions.get(idx);
 
-                    result.add(new Mention(R.drawable.logo1, R.drawable.avatar1,SPACE + mention.get(SOURCE_TAG), "30min", SPACE + mention.get(TITLE_TAG) ,true, true));
+                    result.add(new Mention(R.drawable.logo1, R.drawable.avatar1,SPACE + mention.get(SOURCE_TAG), idx , SPACE + mention.get(TITLE_TAG) ,true, true));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -169,6 +199,8 @@ public class MainActivity extends Activity {
             return result;
         }
     }
+
+
 
 }
 

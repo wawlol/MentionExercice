@@ -6,12 +6,12 @@ public class Mention {
     private int mLogoUrl;
     private int mAvatarUrl;
     private String mSource;
-    private String mTime;
+    private int mTime;
     private String mText;
     private boolean mRead;
     private boolean mWait;
 
-    public Mention(int logo_url, int avatar_url, String source , String time, String text, boolean read, boolean wait){
+    public Mention(int logo_url, int avatar_url, String source , int time, String text, boolean read, boolean wait){
         this.mLogoUrl = logo_url;
         this.mAvatarUrl = avatar_url;
         this.mSource = source;
@@ -35,28 +35,19 @@ public class Mention {
         this.mText = mText;
     }
     public String getTime() {
-        return mTime;
+
+        String local = String.valueOf(mTime);
+        return local;
     }
-    public void setTime(String mTime) {
-        this.mTime = mTime;
-    }
+
     public String getSource() {
         return mSource;
-    }
-    public void setSource(String mSource) {
-        this.mSource = mSource;
     }
     public int getAvatarUrl() {
         return mAvatarUrl;
     }
-    public void setAvatarUrl(int mAvatarUrl) {
-        this.mAvatarUrl = mAvatarUrl;
-    }
     public int getLogoUrl() {
         return mLogoUrl;
-    }
-    public void setLogoUrl(int mLogoUrl) {
-        this.mLogoUrl = mLogoUrl;
     }
     public boolean isWait() {
         return mWait;
