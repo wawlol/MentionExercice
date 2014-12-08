@@ -183,7 +183,6 @@ public class MainActivity extends Activity {
 
     class JSONResponseHandler implements ResponseHandler<ArrayList<Mention>> {
 
-        private static final String SPACE = "";
         private static final String TITLE_TAG = "title";
         private static final String SOURCE_TAG = "source_name";
         private static final String MENTIONS_TAG = "mentions";
@@ -201,13 +200,14 @@ public class MainActivity extends Activity {
 
                 JSONObject links = responseObject.getJSONObject("_links");
                 JSONObject more = links.getJSONObject("more");
+                System.out.println(more);
                 String href = "https://api.mention.net" + more.getString("href");
                 mHref = href;
 
                 for (int idx = 0; idx < mentions.length(); idx++) {
 
                     JSONObject mention = (JSONObject) mentions.get(idx);
-                    result.add(new Mention(R.drawable.logo1, R.drawable.avatar1,SPACE + mention.get(SOURCE_TAG), idx , SPACE + mention.get(TITLE_TAG) ,true, true));
+                    result.add(new Mention(R.drawable.logo1, R.drawable.avatar1, mention.getString(SOURCE_TAG), idx, mention.getString(TITLE_TAG), true, true));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
