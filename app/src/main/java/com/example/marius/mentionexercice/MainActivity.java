@@ -5,13 +5,10 @@ import android.content.Intent;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -29,42 +26,64 @@ import java.util.ArrayList;
 
 
 
-
 public class MainActivity extends Activity {
 
     private MentionAdapter mAdapter;
-    private ArrayList<Mention> mArrayOfList;
+    private ArrayList<Mention> mArrayOfList = null;
+    private String mHref = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions";
+    private int mLoaded = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         populateMentionsList();
         changeOnClick();
 
     }
-
-
-
     private void populateMentionsList() {
         CheckInternet checkInternet = new CheckInternet(this);
         if(checkInternet.isConnected()){
 
         HttpGetMention httpGetMention = new HttpGetMention();
         httpGetMention.execute();
+
         }
           else {
 
             Intent intent = new Intent(this, ReloadButton2.class);
             finish();
             startActivity(intent);
-
-
-
         }
     }
+
+    private void loadMoreMentions() {
+        ListView listView = (ListView) findViewById(R.id.mention);
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+                if (mLoaded == 1) {
+                    boolean shouldLoadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
+
+                    if (shouldLoadMore) {
+                        Toast.makeText(getApplicationContext(), "Loading more mentions !", Toast.LENGTH_SHORT).show();
+                        HttpGetMention httpGetMention = new HttpGetMention();
+                        httpGetMention.execute();
+                        mLoaded = 2;
+                    }
+
+                }
+            }
+        });
+    }
+
     private void changeOnClick() {
 
         ListView listView = (ListView) findViewById(R.id.mention);
@@ -120,22 +139,20 @@ public class MainActivity extends Activity {
         private static final String ACCEPT_HEADER = "application/json";
         private static final String ACCEPT_LANGUAGE_HEADER = "fr";
         private static final String TOKEN_HEADER = "Bearer ZTlhODAzMmMxZGU4NGI4NDA2OTA0MzFmOTIwZTZkY2ViMTdiYjg4YmQwNWNmNTEyMjc3NzBlOGZjMzJjNTZlOQ";
-        private static final String URL = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions?limit=50";
-
-        AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
+        private AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
 
         @Override
         protected ArrayList<Mention> doInBackground(Void... params) {
 
-            HttpGet request = new HttpGet(URL);
+            HttpGet request = new HttpGet(mHref);
             request.addHeader("Accept", ACCEPT_HEADER);
             request.addHeader("Accept-Language", ACCEPT_LANGUAGE_HEADER);
             request.addHeader("Authorization", TOKEN_HEADER );
 
-
             JSONResponseHandler responseHandler = new JSONResponseHandler();
 
             try {
+
                 ArrayList<Mention> local = mClient.execute(request, responseHandler);
                 if (null != mClient)
                     mClient.close();
@@ -150,18 +167,22 @@ public class MainActivity extends Activity {
         }
         @Override
         protected void onPostExecute(ArrayList<Mention> result) {
+            if (mArrayOfList == null) {
+                ArrayList<Mention> arrayOfMention = result;
+                MentionAdapter adapter = new MentionAdapter(getApplicationContext(), arrayOfMention);
+                ListView listView = (ListView) findViewById(R.id.mention);
+                listView.setAdapter(adapter);
+                mAdapter = adapter;
+                mArrayOfList = arrayOfMention;
 
-            ArrayList<Mention> arrayOfMention = result;
-            MentionAdapter adapter = new MentionAdapter(getApplicationContext(), arrayOfMention);
-            ListView listView = (ListView) findViewById(R.id.mention);
-            listView.setAdapter(adapter);
-            mAdapter = adapter;
-            mArrayOfList = arrayOfMention;
-
-
+                loadMoreMentions();
+            } else {
+                mArrayOfList.addAll(result);
+                mAdapter.notifyDataSetChanged();
+                mLoaded = 1;
+            }
         }
     }
-
     class JSONResponseHandler implements ResponseHandler<ArrayList<Mention>> {
 
         private static final String SPACE = "";
@@ -169,22 +190,21 @@ public class MainActivity extends Activity {
         private static final String SOURCE_TAG = "source_name";
         private static final String MENTIONS_TAG = "mentions";
 
-
-
-
         @Override
         public ArrayList<Mention> handleResponse(HttpResponse response)
                 throws IOException {
             ArrayList<Mention> result = new ArrayList<Mention>();
-            String JSONResponse = new BasicResponseHandler()
-                    .handleResponse(response);
+            String JSONResponse = new BasicResponseHandler().handleResponse(response);
             try {
 
-                JSONObject responseObject = (JSONObject) new JSONTokener(
-                        JSONResponse).nextValue();
+                JSONObject responseObject = (JSONObject) new JSONTokener(JSONResponse).nextValue();
 
-                JSONArray mentions = responseObject
-                        .getJSONArray(MENTIONS_TAG);
+                JSONArray mentions = responseObject.getJSONArray(MENTIONS_TAG);
+
+                JSONObject links = responseObject.getJSONObject("_links");
+                JSONObject more = links.getJSONObject("more");
+                String href = "https://api.mention.net" + more.getString("href");
+                mHref = href;
 
                 for (int idx = 0; idx < mentions.length(); idx++) {
 
@@ -199,8 +219,4 @@ public class MainActivity extends Activity {
             return result;
         }
     }
-
-
-
 }
-
