@@ -74,8 +74,7 @@ public class MainActivity extends Activity {
 
                     if (shouldLoadMore) {
                         Toast.makeText(getApplicationContext(), "Loading more mentions !", Toast.LENGTH_SHORT).show();
-                        HttpGetMention httpGetMention = new HttpGetMention();
-                        httpGetMention.execute();
+                        populateMentionsList();
                         mLoaded = 2;
                     }
 
