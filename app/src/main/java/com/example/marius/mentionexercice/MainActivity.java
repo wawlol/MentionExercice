@@ -24,14 +24,12 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
-
 public class MainActivity extends Activity {
 
     private MentionAdapter mAdapter;
     private ArrayList<Mention> mArrayOfList = null;
     private String mHref = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions";
-    private int mLoaded = 1;
+    private boolean mLoaded = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,13 +67,13 @@ public class MainActivity extends Activity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
-                if (mLoaded == 1) {
+                if (mLoaded) {
                     boolean shouldLoadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
 
                     if (shouldLoadMore) {
                         Toast.makeText(getApplicationContext(), "Loading more mentions !", Toast.LENGTH_SHORT).show();
                         populateMentionsList();
-                        mLoaded = 2;
+                        mLoaded = false;
                     }
 
                 }
@@ -178,10 +176,11 @@ public class MainActivity extends Activity {
             } else {
                 mArrayOfList.addAll(result);
                 mAdapter.notifyDataSetChanged();
-                mLoaded = 1;
+                mLoaded = true;
             }
         }
     }
+
     class JSONResponseHandler implements ResponseHandler<ArrayList<Mention>> {
 
         private static final String SPACE = "";
@@ -207,9 +206,7 @@ public class MainActivity extends Activity {
 
                 for (int idx = 0; idx < mentions.length(); idx++) {
 
-
                     JSONObject mention = (JSONObject) mentions.get(idx);
-
                     result.add(new Mention(R.drawable.logo1, R.drawable.avatar1,SPACE + mention.get(SOURCE_TAG), idx , SPACE + mention.get(TITLE_TAG) ,true, true));
                 }
             } catch (JSONException e) {

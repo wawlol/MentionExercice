@@ -64,5 +64,4 @@ public class Mention {
         this.mWait = mWait;
     }
 
-
 }

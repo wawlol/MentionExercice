@@ -17,19 +17,10 @@ import java.util.ArrayList;
 public class MentionAdapter extends ArrayAdapter<Mention> {
 
 
-    private static class ViewHolder {
-        TextView mText;
-        TextView mTime;
-        TextView mSource;
-        ImageView mLogo;
-        ImageView mAvatar;
-        ImageView mRead;
-        RelativeLayout mRlayout;
-        ProgressBar mWait;
-    }
     public MentionAdapter(Context context, ArrayList<Mention> mentions) {
         super(context, 0, mentions);
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -54,10 +45,9 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        if(mention.isWait()){
+        if (mention.isWait()) {
             viewHolder.mWait.setVisibility(View.INVISIBLE);
-        }
-        else {
+        } else {
             viewHolder.mWait.setVisibility(View.VISIBLE);
         }
 
@@ -78,5 +68,16 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
             viewHolder.mRlayout.setBackgroundResource(R.color.lightgray);
         }
         return convertView;
+    }
+
+    private static class ViewHolder {
+        TextView mText;
+        TextView mTime;
+        TextView mSource;
+        ImageView mLogo;
+        ImageView mAvatar;
+        ImageView mRead;
+        RelativeLayout mRlayout;
+        ProgressBar mWait;
     }
 }
