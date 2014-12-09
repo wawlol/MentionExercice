@@ -1,7 +1,6 @@
 package com.example.marius.mentionexercice;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.widget.Toast;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,9 +24,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
-    // Tu peux indenter et intiatialiser les variables du genre :
-    // private MentionAdapter                   mAdapter = null;
-    private MentionAdapter mAdapter;
+    private MentionAdapter mAdapter = null;
     private ArrayList<Mention> mArrayOfList = null;
     private String mHref = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions";
     private boolean mLoaded = true;
@@ -43,22 +39,10 @@ public class MainActivity extends Activity {
 
     }
     private void populateMentionsList() {
-        // Inutile d'instancier CheckInternet. (voir commentaire sur l'autre fichier).
-        CheckInternet checkInternet = new CheckInternet(this);
-        if(checkInternet.isConnected()){
 
         HttpGetMention httpGetMention = new HttpGetMention();
         httpGetMention.execute();
-
-        }
-          else {
-
-            Intent intent = new Intent(this, ReloadButton2.class);
-            finish();
-            startActivity(intent);
-        }
     }
-
     private void loadMoreMentions() {
         ListView listView = (ListView) findViewById(R.id.mention);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -66,7 +50,6 @@ public class MainActivity extends Activity {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }
-
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
@@ -78,7 +61,6 @@ public class MainActivity extends Activity {
                         populateMentionsList();
                         mLoaded = false;
                     }
-
                 }
             }
         });
@@ -93,20 +75,15 @@ public class MainActivity extends Activity {
                 final Mention mention = mArrayOfList.get(position);
 
                 class ProgressTask extends AsyncTask<Void, Void, Boolean> {
-                    private int x;
 
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-                        // Voir commentaires sur le design pattern "State" ou "Etat" sur le fichier MentionAdapter
-                        if (mention.isRead()) {
-                            mention.setRead(false);
-                            x = 1;
+                        if (mention.getState() == Mention.State.UNREAD) {
+                            mention.setState(Mention.State.WAIT);
+                            mAdapter.notifyDataSetChanged();
                         }
-                        if (mention.isWait()) mention.setWait(false);
-                        mAdapter.notifyDataSetChanged();
                     }
-
                     @Override
                     protected Boolean doInBackground(Void... arg0) {
 
@@ -122,9 +99,11 @@ public class MainActivity extends Activity {
                     @Override
                     protected void onPostExecute(Boolean result) {
                         super.onPostExecute(result);
-                        mention.setWait(true);
-                        if (x != 1) mention.setRead(true);
-                        mAdapter.notifyDataSetChanged();
+
+                        if (mention.getState() == Mention.State.WAIT) {
+                            mention.setState(Mention.State.READ);
+                            mAdapter.notifyDataSetChanged();
+                        }
                     }
                 }
                 ProgressTask progresstask = new ProgressTask();
@@ -136,26 +115,20 @@ public class MainActivity extends Activity {
 
     class HttpGetMention extends AsyncTask<Void, Void, ArrayList<Mention>> {
 
-        private static final String ACCEPT_HEADER = "application/json";
-        private static final String ACCEPT_LANGUAGE_HEADER = "fr";
-        private static final String TOKEN_HEADER = "Bearer ZTlhODAzMmMxZGU4NGI4NDA2OTA0MzFmOTIwZTZkY2ViMTdiYjg4YmQwNWNmNTEyMjc3NzBlOGZjMzJjNTZlOQ";
+
         private AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
 
         @Override
         protected ArrayList<Mention> doInBackground(Void... params) {
-            // Tu peux séparer tous ces appels de bas niveau à une autre classe comme celle de Utils (ou CheckInternet si tu veux).
-            HttpGet request = new HttpGet(mHref);
-            request.addHeader("Accept", ACCEPT_HEADER);
-            request.addHeader("Accept-Language", ACCEPT_LANGUAGE_HEADER);
-            request.addHeader("Authorization", TOKEN_HEADER );
 
             JSONResponseHandler responseHandler = new JSONResponseHandler();
 
             try {
+                ArrayList<Mention> local = mClient.execute(JsonRequest.request(mHref), responseHandler);
 
-                ArrayList<Mention> local = mClient.execute(request, responseHandler);
-                // Tu peux faire les vérifications de connectivité ici plutôt que dans la couche haute de ton application. Ca permet
-                // de bien séparer les couches.
+                if (!Utils.isOnline(getApplicationContext())) {
+                    local = null;
+                }
                 if (null != mClient)
                     mClient.close();
                 return local;
@@ -169,8 +142,11 @@ public class MainActivity extends Activity {
         }
         @Override
         protected void onPostExecute(ArrayList<Mention> result) {
-            // En suivant mon conseil juste plus haut, tu pourrais faire en sorte de dire que si y a pas internet, alors result ici renvoie null
-            if (mArrayOfList == null) {
+
+            if (result == null) {
+                //acction si pas d'internet !!! (bouton retry footer ??)
+                populateMentionsList();
+            } else if (mArrayOfList == null) {
                 ArrayList<Mention> arrayOfMention = result;
                 MentionAdapter adapter = new MentionAdapter(getApplicationContext(), arrayOfMention);
                 ListView listView = (ListView) findViewById(R.id.mention);
@@ -201,19 +177,16 @@ public class MainActivity extends Activity {
             try {
 
                 JSONObject responseObject = (JSONObject) new JSONTokener(JSONResponse).nextValue();
-
                 JSONArray mentions = responseObject.getJSONArray(MENTIONS_TAG);
-
                 JSONObject links = responseObject.getJSONObject("_links");
                 JSONObject more = links.getJSONObject("more");
-                System.out.println(more);
                 String href = "https://api.mention.net" + more.getString("href");
                 mHref = href;
 
                 for (int idx = 0; idx < mentions.length(); idx++) {
 
                     JSONObject mention = (JSONObject) mentions.get(idx);
-                    result.add(new Mention(R.drawable.logo1, R.drawable.avatar1, mention.getString(SOURCE_TAG), idx, mention.getString(TITLE_TAG), true, true));
+                    result.add(new Mention(R.drawable.logo1, R.drawable.avatar1, mention.getString(SOURCE_TAG), idx, mention.getString(TITLE_TAG), Mention.State.UNREAD));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

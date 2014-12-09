@@ -2,42 +2,36 @@ package com.example.marius.mentionexercice;
 
 
 public class Mention {
-    // Indente les variables et initialise-les
-    private int mLogoUrl;
-    private int mAvatarUrl;
-    private String mSource;
-    private int mTime;
-    private String mText;
-    private boolean mRead;
-    private boolean mWait;
 
-    // Optimise ton code en utilisant le mot-clé static aux arguments :
-    // public Mention(final int logo_url, ...);
-    public Mention(int logo_url, int avatar_url, String source, int time, String text, boolean read, boolean wait) {
+    private int mLogoUrl = -1;
+    private int mAvatarUrl = -1;
+    private String mSource = null;
+    private int mTime = -1;
+    private String mText = null;
+    private State mState = null;
+
+
+    public Mention(final int logo_url, final int avatar_url, final String source, final int time, final String text, final State state) {
         this.mLogoUrl = logo_url;
         this.mAvatarUrl = avatar_url;
         this.mSource = source;
         this.mTime = time;
         this.mText = text;
-        this.mRead = read;
-        this.mWait = wait;
+        this.mState = state;
+
     }
 
     //Getters and Setters :
-    public boolean isRead() {
-        return mRead;
+    public State getState() {
+        return mState;
     }
 
-    public void setRead(boolean mRead) {
-        this.mRead = mRead;
+    public void setState(State mState) {
+        this.mState = mState;
     }
 
     public String getText() {
         return mText;
-    }
-
-    public void setText(String mText) {
-        this.mText = mText;
     }
 
     // Qu'est ce que tu as voulu faire ici ???
@@ -59,12 +53,11 @@ public class Mention {
         return mLogoUrl;
     }
 
-    public boolean isWait() {
-        return mWait;
+    public enum State {
+        UNREAD,
+        READ,
+        WAIT,
     }
 
-    public void setWait(boolean mWait) {
-        this.mWait = mWait;
-    }
 
 }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 public class MentionAdapter extends ArrayAdapter<Mention> {
 
-    // Il y a aussi la possibilité de passer le layout au constructeur de MentionAdapter. Tu aurais donc pu appeler super(context, resource, mentions)
     public MentionAdapter(Context context, ArrayList<Mention> mentions) {
         super(context, 0, mentions);
     }
@@ -27,70 +26,58 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         Mention mention = getItem(position);
         ViewHolder viewHolder;
 
+
         if (convertView == null) {
             viewHolder = new ViewHolder();
 
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.mention, parent, false);
 
-            viewHolder.mLogo = (ImageView) convertView.findViewById(R.id.logo);
-            viewHolder.mAvatar = (ImageView) convertView.findViewById(R.id.avatar);
-            viewHolder.mText = (TextView) convertView.findViewById(R.id.texte);
-            viewHolder.mTime = (TextView) convertView.findViewById(R.id.time);
-            viewHolder.mSource = (TextView) convertView.findViewById(R.id.source);
-            viewHolder.mRead = (ImageView) convertView.findViewById(R.id.bluebutton);
-            viewHolder.mRlayout = (RelativeLayout) convertView.findViewById(R.id.mainlayout);
-            viewHolder.mWait = (ProgressBar) convertView.findViewById(R.id.progressbar);
+            viewHolder.logo = (ImageView) convertView.findViewById(R.id.logo);
+            viewHolder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
+            viewHolder.text = (TextView) convertView.findViewById(R.id.texte);
+            viewHolder.time = (TextView) convertView.findViewById(R.id.time);
+            viewHolder.source = (TextView) convertView.findViewById(R.id.source);
+            viewHolder.bluebutton = convertView.findViewById(R.id.bluebutton);
+            viewHolder.rLayout = (RelativeLayout) convertView.findViewById(R.id.mainlayout);
+            viewHolder.waitingAnim = (ProgressBar) convertView.findViewById(R.id.progressbar);
 
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+        //populateListArrayCell :
 
-        // Un peu rébarbatif ! Tu pourrais utiliser un design patter "Etat". Exemple :
-        // public enum State {
-        //        UNREAD,
-        //        WAIT,
-        //        READ
-        //    }
-        //
-        //private State mState = null;
-        //
-        //if (mention.getState() == State.UNREAD) {...}
-        //else if (mention.getState() == State.WAIT) {...}
-        //else if ...
-        if(mention.isWait()){
-            viewHolder.mWait.setVisibility(View.INVISIBLE);
-        } else {
-            viewHolder.mWait.setVisibility(View.VISIBLE);
+        if (mention.getState() == Mention.State.UNREAD) {
+            viewHolder.bluebutton.setVisibility(View.VISIBLE);
+        } else if (mention.getState() == Mention.State.READ) {
+            viewHolder.waitingAnim.setVisibility(View.INVISIBLE);
+        } else if (mention.getState() == Mention.State.WAIT) {
+            viewHolder.bluebutton.setVisibility(View.INVISIBLE);
+            viewHolder.waitingAnim.setVisibility(View.VISIBLE);
         }
 
-        if (mention.isRead()) {
-            viewHolder.mRead.setVisibility(View.VISIBLE);
-        } else {
-            viewHolder.mRead.setVisibility(View.INVISIBLE);
-        }
-        viewHolder.mLogo.setImageResource(mention.getLogoUrl());
-        viewHolder.mAvatar.setImageResource(mention.getAvatarUrl());
-        viewHolder.mText.setText(mention.getText());
-        viewHolder.mTime.setText(mention.getTime());
-        viewHolder.mSource.setText(mention.getSource());
+        viewHolder.logo.setImageResource(mention.getLogoUrl());
+        viewHolder.avatar.setImageResource(mention.getAvatarUrl());
+        viewHolder.text.setText(mention.getText());
+        viewHolder.time.setText(mention.getTime());
+        viewHolder.source.setText(mention.getSource());
 
         if (position % 2 == 1) {
-            viewHolder.mRlayout.setBackgroundResource(R.color.darkgray);
+            viewHolder.rLayout.setBackgroundResource(R.color.darkgray);
         } else {
-            viewHolder.mRlayout.setBackgroundResource(R.color.lightgray);
+            viewHolder.rLayout.setBackgroundResource(R.color.lightgray);
         }
         return convertView;
     }
 
     private static class ViewHolder {
-        TextView mText;
-        TextView mTime;
-        TextView mSource;
-        ImageView mLogo;
-        ImageView mAvatar;
-        ImageView mRead;
-        RelativeLayout mRlayout;
-        ProgressBar mWait;
+        private TextView text = null;
+        private TextView time = null;
+        private TextView source = null;
+        private ImageView logo = null;
+        private ImageView avatar = null;
+        private View bluebutton = null;
+        private RelativeLayout rLayout = null;
+        private ProgressBar waitingAnim = null;
     }
 }
