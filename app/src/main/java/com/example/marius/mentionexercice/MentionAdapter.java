@@ -16,23 +16,11 @@ import java.util.ArrayList;
 
 public class MentionAdapter extends ArrayAdapter<Mention> {
 
-
-    private static class ViewHolder {
-        // Pour le pattern ViewHolder, tu peux appeler tes variables text, time, source, etc...
-        TextView mText;
-        TextView mTime;
-        TextView mSource;
-        ImageView mLogo;
-        ImageView mAvatar;
-        ImageView mRead;
-        RelativeLayout mRlayout;
-        ProgressBar mWait;
-    }
-
     // Il y a aussi la possibilité de passer le layout au constructeur de MentionAdapter. Tu aurais donc pu appeler super(context, resource, mentions)
     public MentionAdapter(Context context, ArrayList<Mention> mentions) {
         super(context, 0, mentions);
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -72,8 +60,7 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         //else if ...
         if(mention.isWait()){
             viewHolder.mWait.setVisibility(View.INVISIBLE);
-        }
-        else {
+        } else {
             viewHolder.mWait.setVisibility(View.VISIBLE);
         }
 
@@ -94,5 +81,16 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
             viewHolder.mRlayout.setBackgroundResource(R.color.lightgray);
         }
         return convertView;
+    }
+
+    private static class ViewHolder {
+        TextView mText;
+        TextView mTime;
+        TextView mSource;
+        ImageView mLogo;
+        ImageView mAvatar;
+        ImageView mRead;
+        RelativeLayout mRlayout;
+        ProgressBar mWait;
     }
 }
