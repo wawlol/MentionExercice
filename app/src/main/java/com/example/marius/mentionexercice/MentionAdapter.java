@@ -18,6 +18,7 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
 
 
     private static class ViewHolder {
+        // Pour le pattern ViewHolder, tu peux appeler tes variables text, time, source, etc...
         TextView mText;
         TextView mTime;
         TextView mSource;
@@ -27,6 +28,8 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         RelativeLayout mRlayout;
         ProgressBar mWait;
     }
+
+    // Il y a aussi la possibilité de passer le layout au constructeur de MentionAdapter. Tu aurais donc pu appeler super(context, resource, mentions)
     public MentionAdapter(Context context, ArrayList<Mention> mentions) {
         super(context, 0, mentions);
     }
@@ -54,6 +57,19 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+
+        // Un peu rébarbatif ! Tu pourrais utiliser un design patter "Etat". Exemple :
+        // public enum State {
+        //        UNREAD,
+        //        WAIT,
+        //        READ
+        //    }
+        //
+        //private State mState = null;
+        //
+        //if (mention.getState() == State.UNREAD) {...}
+        //else if (mention.getState() == State.WAIT) {...}
+        //else if ...
         if(mention.isWait()){
             viewHolder.mWait.setVisibility(View.INVISIBLE);
         }

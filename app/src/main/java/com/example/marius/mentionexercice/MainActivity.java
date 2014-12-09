@@ -28,9 +28,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
+    // Tu peux indenter et intiatialiser les variables du genre :
+    // private MentionAdapter                   mAdapter = null;
     private MentionAdapter mAdapter;
     private ArrayList<Mention> mArrayOfList = null;
     private String mHref = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions";
+    // Si tu n'utilises que 2 valeurs, tu peux utiliser un boolean = true / false;
     private int mLoaded = 1;
 
     @Override
@@ -43,6 +46,7 @@ public class MainActivity extends Activity {
 
     }
     private void populateMentionsList() {
+        // Inutile d'instancier CheckInternet. (voir commentaire sur l'autre fichier).
         CheckInternet checkInternet = new CheckInternet(this);
         if(checkInternet.isConnected()){
 
@@ -68,7 +72,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
+                // Utilise un boolean
                 if (mLoaded == 1) {
                     boolean shouldLoadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
 
@@ -97,7 +101,7 @@ public class MainActivity extends Activity {
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-
+                        // Voir commentaires sur le design pattern "State" ou "Etat" sur le fichier MentionAdapter
                         if (mention.isRead()) {
                             mention.setRead(false);
                             x = 1;
@@ -142,7 +146,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected ArrayList<Mention> doInBackground(Void... params) {
-
+            // Tu peux séparer tous ces appels de bas niveau à une autre classe comme celle de Utils (ou CheckInternet si tu veux).
             HttpGet request = new HttpGet(mHref);
             request.addHeader("Accept", ACCEPT_HEADER);
             request.addHeader("Accept-Language", ACCEPT_LANGUAGE_HEADER);

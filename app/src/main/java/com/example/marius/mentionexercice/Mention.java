@@ -2,7 +2,7 @@ package com.example.marius.mentionexercice;
 
 
 public class Mention {
-
+    // Indente les variables et initialise-les
     private int mLogoUrl;
     private int mAvatarUrl;
     private String mSource;
@@ -11,6 +11,8 @@ public class Mention {
     private boolean mRead;
     private boolean mWait;
 
+    // Optimise ton code en utilisant le mot-clé static aux arguments :
+    // public Mention(final int logo_url, ...);
     public Mention(int logo_url, int avatar_url, String source, int time, String text, boolean read, boolean wait) {
         this.mLogoUrl = logo_url;
         this.mAvatarUrl = avatar_url;
@@ -38,6 +40,7 @@ public class Mention {
         this.mText = mText;
     }
 
+    // Qu'est ce que tu as voulu faire ici ???
     public String getTime() {
 
         String local = String.valueOf(mTime);
