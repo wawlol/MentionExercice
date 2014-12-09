@@ -154,6 +154,8 @@ public class MainActivity extends Activity {
             try {
 
                 ArrayList<Mention> local = mClient.execute(request, responseHandler);
+                // Tu peux faire les vérifications de connectivité ici plutôt que dans la couche haute de ton application. Ca permet
+                // de bien séparer les couches.
                 if (null != mClient)
                     mClient.close();
                 return local;
@@ -167,6 +169,7 @@ public class MainActivity extends Activity {
         }
         @Override
         protected void onPostExecute(ArrayList<Mention> result) {
+            // En suivant mon conseil juste plus haut, tu pourrais faire en sorte de dire que si y a pas internet, alors result ici renvoie null
             if (mArrayOfList == null) {
                 ArrayList<Mention> arrayOfMention = result;
                 MentionAdapter adapter = new MentionAdapter(getApplicationContext(), arrayOfMention);
