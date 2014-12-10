@@ -26,7 +26,6 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         Mention mention = getItem(position);
         ViewHolder viewHolder;
 
-
         if (convertView == null) {
             viewHolder = new ViewHolder();
 
@@ -45,12 +44,13 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        //populateListArrayCell :
 
         if (mention.getState() == Mention.State.UNREAD) {
             viewHolder.bluebutton.setVisibility(View.VISIBLE);
+            viewHolder.waitingAnim.setVisibility(View.INVISIBLE);
         } else if (mention.getState() == Mention.State.READ) {
             viewHolder.waitingAnim.setVisibility(View.INVISIBLE);
+            viewHolder.bluebutton.setVisibility(View.INVISIBLE);
         } else if (mention.getState() == Mention.State.WAIT) {
             viewHolder.bluebutton.setVisibility(View.INVISIBLE);
             viewHolder.waitingAnim.setVisibility(View.VISIBLE);

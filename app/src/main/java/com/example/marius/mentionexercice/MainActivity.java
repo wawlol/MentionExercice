@@ -109,6 +109,7 @@ public class MainActivity extends Activity {
                         mAdapter.notifyDataSetChanged();
                         }
                     }
+                System.out.println("La position de la mention est" + position);
                 if (mention.getState() == Mention.State.UNREAD) {
                     ProgressTask progresstask = new ProgressTask();
                     progresstask.execute();
