@@ -18,7 +18,6 @@ public class Mention {
         this.mTime = time;
         this.mText = text;
         this.mState = state;
-
     }
 
     //Getters and Setters :

@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -28,6 +27,8 @@ public class MainActivity extends Activity {
     private ArrayList<Mention> mArrayOfList = null;
     private String mHref = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions";
     private boolean mLoaded = true;
+    private Activity ctx = this;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,8 @@ public class MainActivity extends Activity {
         changeOnClick();
 
     }
-    private void populateMentionsList() {
+
+    public void populateMentionsList() {
 
         HttpGetMention httpGetMention = new HttpGetMention();
         httpGetMention.execute();
@@ -57,9 +59,8 @@ public class MainActivity extends Activity {
                     boolean shouldLoadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
 
                     if (shouldLoadMore) {
-                        Toast.makeText(getApplicationContext(), "Loading more mentions !", Toast.LENGTH_SHORT).show();
-                        populateMentionsList();
                         mLoaded = false;
+                        populateMentionsList();
                     }
                 }
             }
@@ -143,16 +144,14 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(ArrayList<Mention> result) {
 
-            if (result == null) {
-                //acction si pas d'internet !!! (bouton retry footer ??)
-                populateMentionsList();
-            } else if (mArrayOfList == null) {
-                ArrayList<Mention> arrayOfMention = result;
-                MentionAdapter adapter = new MentionAdapter(getApplicationContext(), arrayOfMention);
+            if (mArrayOfList == null) {
+                MentionAdapter adapter = new MentionAdapter(getApplicationContext(), result);
                 ListView listView = (ListView) findViewById(R.id.mention);
+                Utils.insertFooter(getApplicationContext(), listView);
                 listView.setAdapter(adapter);
+
                 mAdapter = adapter;
-                mArrayOfList = arrayOfMention;
+                mArrayOfList = result;
 
                 loadMoreMentions();
             } else {

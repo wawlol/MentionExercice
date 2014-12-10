@@ -3,5 +3,6 @@
 
     <color name="lightgray">#ffa19e9a</color>
     <color name="darkgray">#ff787170</color>
+    <color name="black">#ff000000</color>
 
 </resources>

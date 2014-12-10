@@ -4,8 +4,7 @@
     <string name="app_name">MentionExercice</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="checkYourConnexion">Check your Connexion</string>
-    <string name="reloadtext">Check you Internet connexion, then press the screen</string>
     <string name="title_activity_reload_button2">ReloadButton2</string>
+    <string name="notonline">No Internet Connexion, press here to retry</string>
 
 </resources>
