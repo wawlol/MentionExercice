@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
     private ArrayList<Mention> mArrayOfList = null;
     private String mHref = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions";
     private boolean mLoaded = true;
+    private boolean mLoaded2 = true;
     private Activity ctx = this;
 
 
@@ -45,6 +46,7 @@ public class MainActivity extends Activity {
         HttpGetMention httpGetMention = new HttpGetMention();
         httpGetMention.execute();
     }
+
     private void loadMoreMentions() {
         ListView listView = (ListView) findViewById(R.id.mention);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -69,8 +71,10 @@ public class MainActivity extends Activity {
 
     private void changeOnClick() {
 
+
         ListView listView = (ListView) findViewById(R.id.mention);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
 
             public void onItemClick(AdapterView<?> parentAdapter, View view, int position, long id) {
                 final Mention mention = mArrayOfList.get(position);
@@ -80,11 +84,11 @@ public class MainActivity extends Activity {
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-                        if (mention.getState() == Mention.State.UNREAD) {
-                            mention.setState(Mention.State.WAIT);
-                            mAdapter.notifyDataSetChanged();
+                        mention.setState(Mention.State.WAIT);
+                        mAdapter.notifyDataSetChanged();
+
                         }
-                    }
+
                     @Override
                     protected Boolean doInBackground(Void... arg0) {
 
@@ -95,23 +99,24 @@ public class MainActivity extends Activity {
                             e.printStackTrace();
                             return false;
                         }
-                    }
+                        }
 
                     @Override
                     protected void onPostExecute(Boolean result) {
                         super.onPostExecute(result);
 
-                        if (mention.getState() == Mention.State.WAIT) {
-                            mention.setState(Mention.State.READ);
-                            mAdapter.notifyDataSetChanged();
+                        mention.setState(Mention.State.READ);
+                        mAdapter.notifyDataSetChanged();
                         }
                     }
+                if (mention.getState() == Mention.State.UNREAD) {
+                    ProgressTask progresstask = new ProgressTask();
+                    progresstask.execute();
                 }
-                ProgressTask progresstask = new ProgressTask();
-                progresstask.execute();
 
-            }
+                }
         });
+
     }
 
     class HttpGetMention extends AsyncTask<Void, Void, ArrayList<Mention>> {
