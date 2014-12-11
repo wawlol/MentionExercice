@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -30,9 +32,6 @@ public class MainActivity extends Activity {
     private ArrayList<Mention> mArrayOfList = null;
     private String mHref = "https://api.mention.net/api/accounts/349583_3jzkp761p4aogw88oocgo8s8gc88kg0wkwgo0ko0s48gk88s0o/alerts/874910/mentions";
     private boolean mLoaded = true;
-    private boolean mLoaded2 = true;
-    private Activity ctx = this;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,20 +134,16 @@ public class MainActivity extends Activity {
 
             try {
                 ArrayList<Mention> local = mClient.execute(JsonRequest.request(mHref), responseHandler);
-                if (mClient != null) {
                     mClient.close();
-                }
 
                 return local;
             } catch (ClientProtocolException exception) {
-                if (mClient != null) {
-                    mClient.close();
-                }
+
+                mClient.close();
                 exception.printStackTrace();
             } catch (IOException exception) {
-                if (mClient != null) {
-                    mClient.close();
-                }
+
+                mClient.close();
                 exception.printStackTrace();
             }
             return null;
@@ -205,7 +200,7 @@ public class MainActivity extends Activity {
 
     class JSONResponseHandler implements ResponseHandler<ArrayList<Mention>> {
 
-        private static final String TITLE_TAG = "title";
+        private static final String DESCRIPTION_TAG = "description";
         private static final String SOURCE_TAG = "source_name";
         private static final String MENTIONS_TAG = "mentions";
 
@@ -226,7 +221,13 @@ public class MainActivity extends Activity {
                 for (int idx = 0; idx < mentions.length(); idx++) {
 
                     JSONObject mention = (JSONObject) mentions.get(idx);
-                    result.add(new Mention(R.drawable.logo1, R.drawable.avatar1, mention.getString(SOURCE_TAG), idx, mention.getString(TITLE_TAG), Mention.State.UNREAD));
+                    JSONObject offsets = mention.getJSONObject("offsets");
+                    JSONArray description = offsets.getJSONArray("description");
+
+                    SpannableString boldDescription = new SpannableString(mention.getString(DESCRIPTION_TAG));
+                    boldDescription.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), description.getInt(0), description.getInt(0) + description.getInt(2), 0);
+
+                    result.add(new Mention(R.drawable.logo1, R.drawable.avatar1, mention.getString(SOURCE_TAG), idx, boldDescription, Mention.State.UNREAD));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

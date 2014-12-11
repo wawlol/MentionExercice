@@ -1,17 +1,19 @@
 package com.example.marius.mentionexercice;
 
 
+import android.text.SpannableString;
+
 public class Mention {
 
     private int mLogoUrl = -1;
     private int mAvatarUrl = -1;
     private String mSource = null;
     private int mTime = -1;
-    private String mText = null;
+    private SpannableString mText = null;
     private State mState = null;
 
 
-    public Mention(final int logo_url, final int avatar_url, final String source, final int time, final String text, final State state) {
+    public Mention(final int logo_url, final int avatar_url, final String source, final int time, final SpannableString text, final State state) {
         this.mLogoUrl = logo_url;
         this.mAvatarUrl = avatar_url;
         this.mSource = source;
@@ -29,7 +31,7 @@ public class Mention {
         this.mState = mState;
     }
 
-    public String getText() {
+    public SpannableString getText() {
         return mText;
     }
 
