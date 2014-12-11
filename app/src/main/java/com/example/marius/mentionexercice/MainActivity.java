@@ -126,23 +126,29 @@ public class MainActivity extends Activity {
     class HttpGetMention extends AsyncTask<Void, Void, ArrayList<Mention>> {
 
 
-//        private AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
-
         @Override
         protected ArrayList<Mention> doInBackground(Void... params) {
 
             JSONResponseHandler responseHandler = new JSONResponseHandler();
+
             AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
 
             try {
                 ArrayList<Mention> local = mClient.execute(JsonRequest.request(mHref), responseHandler);
-
-                if (null != mClient)
+                if (mClient != null) {
                     mClient.close();
+                }
+
                 return local;
             } catch (ClientProtocolException exception) {
+                if (mClient != null) {
+                    mClient.close();
+                }
                 exception.printStackTrace();
             } catch (IOException exception) {
+                if (mClient != null) {
+                    mClient.close();
+                }
                 exception.printStackTrace();
             }
             return null;
