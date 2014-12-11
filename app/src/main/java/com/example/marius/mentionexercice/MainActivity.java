@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -123,23 +126,20 @@ public class MainActivity extends Activity {
     class HttpGetMention extends AsyncTask<Void, Void, ArrayList<Mention>> {
 
 
-        private AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
+//        private AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
 
         @Override
         protected ArrayList<Mention> doInBackground(Void... params) {
 
             JSONResponseHandler responseHandler = new JSONResponseHandler();
+            AndroidHttpClient mClient = AndroidHttpClient.newInstance("");
 
             try {
                 ArrayList<Mention> local = mClient.execute(JsonRequest.request(mHref), responseHandler);
 
-                if (!Utils.isOnline(getApplicationContext())) {
-                    local = null;
-                }
                 if (null != mClient)
                     mClient.close();
                 return local;
-
             } catch (ClientProtocolException exception) {
                 exception.printStackTrace();
             } catch (IOException exception) {
@@ -149,21 +149,50 @@ public class MainActivity extends Activity {
         }
         @Override
         protected void onPostExecute(ArrayList<Mention> result) {
+            TextView tv = (TextView) findViewById(R.id.internetalert);
+            tv.setVisibility(View.INVISIBLE);
 
             if (mArrayOfList == null) {
-                MentionAdapter adapter = new MentionAdapter(getApplicationContext(), result);
-                ListView listView = (ListView) findViewById(R.id.mention);
-                Utils.insertFooter(getApplicationContext(), listView);
-                listView.setAdapter(adapter);
+                if (result == null) {
 
-                mAdapter = adapter;
-                mArrayOfList = result;
+                    tv.setVisibility(View.VISIBLE);
+                    tv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            populateMentionsList();
+                        }
+                    });
 
-                loadMoreMentions();
+                } else {
+                    MentionAdapter adapter = new MentionAdapter(getApplicationContext(), result);
+                    ListView listView = (ListView) findViewById(R.id.mention);
+                    Utils.insertFooter(getApplicationContext(), listView);
+                    listView.setAdapter(adapter);
+                    loadMoreMentions();
+                    mAdapter = adapter;
+                    mArrayOfList = result;
+                }
+
             } else {
+                ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressbar2);
+                Button button = (Button) findViewById(R.id.button_reload);
+                if (result == null) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    button.setVisibility(View.VISIBLE);
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            populateMentionsList();
+                        }
+                    });
+                } else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    button.setVisibility(View.INVISIBLE);
+
                 mArrayOfList.addAll(result);
                 mAdapter.notifyDataSetChanged();
                 mLoaded = true;
+                }
             }
         }
     }
